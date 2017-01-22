@@ -5,9 +5,6 @@ from bs4 import BeautifulSoup
 from argparse import ArgumentParser
 
 
-TIME_DELAY_SECONDS = 20
-
-
 def fetch_html_page(url, payload=None):
     return requests.get(url, payload).text
 
@@ -21,9 +18,9 @@ def parse_afisha_page(raw_html):
         count_cinemas = len(link.find_all(href=cinema_template))
         if count_cinemas:
             movie_title = link.find_parent().find(href=movie_template).string
-            movies.append({})
-            movies[-1]['movie_title'] = movie_title
-            movies[-1]['count_cinemas'] = count_cinemas
+            movie = {'movie_title': movie_title,
+                     'count_cinemas': count_cinemas}
+            movies.append(movie)
     return movies
 
 
@@ -55,6 +52,7 @@ def fetch_movies_title_from_afisha():
 
 
 def find_movies_rating(movies):
+    time_delay_between_download_pages = 20
     url = 'https://www.kinopoisk.ru/index.php'
     payload = {'first': 'yes'}
     for movie in movies:
@@ -63,7 +61,7 @@ def find_movies_rating(movies):
         rating_ball, rating_count = parse_kinopoisk_page(raw_html)
         movie['rating_ball'] = rating_ball
         movie['rating_count'] = rating_count
-        time.sleep(TIME_DELAY_SECONDS)
+        time.sleep(time_delay_between_download_pages)
 
 
 def sort_movies_by_rating(movies):
@@ -73,11 +71,11 @@ def sort_movies_by_rating(movies):
 def output_movies_to_console(movies, count_popular_movies=0):
     if not count_popular_movies:
         count_popular_movies = len(movies)
+    output_string = 'Фильм "%s" имеет рейтинг %.3f, его показывают в %d кинотеатрах'
     for movie in movies[:count_popular_movies]:
         movie_title = movie['movie_title']
         count_cinemas = movie['count_cinemas']
         rating_ball = movie['rating_ball']
-        output_string = 'Фильм "%s" имеет рейтинг %.3f, его показывают в %d кинотеатрах'
         print(output_string % (movie_title, rating_ball, count_cinemas))
 
 
