@@ -70,7 +70,9 @@ def sort_movies_by_rating(movies):
     sorted(movies, key=lambda movie: movie['rating_ball'])
 
 
-def output_movies_to_console(movies, count_popular_movies):
+def output_movies_to_console(movies, count_popular_movies=0):
+    if not count_popular_movies:
+        count_popular_movies = len(movies)
     for movie in movies[:count_popular_movies]:
         movie_title = movie['movie_title']
         count_cinemas = movie['count_cinemas']
